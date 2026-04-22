@@ -43,7 +43,7 @@
   escapeinside={(*}{*)},
 }
 
-\title{Yanasse: Finding New Proofs from Deep Vision's Analogies\\[0.5em]
+\title{Project Yanasse: A Hofstadterian Strange Loop\\at Mathematics' Friction Points\\[0.5em]
 \large Part~11: Summary of the Initial Campaign\\[0.3em]
 \normalsize 100 Transfer Attempts, 10 Papers, 35 New Theorems}
 \author{Alexandre Linhares\thanks{alexandre@linhares.ltd. Affiliations: Getulio Vargas Foundation and ARGO LABS}}
@@ -52,28 +52,28 @@
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0.4pt}
-\fancyhead[L]{\footnotesize\textit{Citation: Linhares, A. ``Yanasse: Finding New Proofs from Deep Vision's Analogies --- Part~11,'' Argolab.org Report for Dissemination, 2026.}}
+\fancyhead[L]{\footnotesize\textit{Citation: Linhares, A. ``Project Yanasse: A Hofstadterian Strange Loop at Mathematics' Friction Points --- Part~11,'' Argolab.org Report for Dissemination, 2026.}}
 \fancyfoot[C]{\thepage}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-This paper summarizes the initial Yanasse campaign: 100~schema
-transfer attempts across 10~(source, target) area pairs, reported
-individually in Parts~1--10.  The system discovers new proofs by
-transferring tactic invocation patterns from one area of Lean~4's
+This paper summarizes the initial Yanasse campaign: 100 schema
+transfer attempts across 10 (source, target) area pairs, reported
+individually in Parts 1--10.  The system discovers new proofs by
+transferring tactic invocation patterns from one area of Lean 4's
 Mathlib library to a structurally distant area, using a
 domain-independent relational analogy engine (Deep Vision) to
 identify structurally similar proof states across areas, and an AI
 reasoning agent (Claude) to semantically adapt the source tactic's
 mathematical strategy to the target theorem.
-
-Of 100~attempts, 35~produced Lean-verified new proofs (35\%
+%
+Of 100 attempts, 35 produced Lean-verified new proofs (35\%
 overall).  The results reveal a two-factor model of
-transferability: success depends on (1)~the source area's tactic
+transferability: success depends on (1) the source area's tactic
 profile (structural combinators transfer broadly; algebraic decision
-procedures transfer narrowly) and (2)~the target area's type-class
+procedures transfer narrowly) and (2) the target area's type-class
 landscape (areas with rich algebraic instances are accessible to
 more sources).  An element/morphism paradigm boundary separates
 areas where algebraic tactics gain purchase from those where they
@@ -81,7 +81,7 @@ cannot.  Information Theory is the most accessible target (90\%);
 Condensed Mathematics the least (10\%).  Probability is the
 stronger source (46\%); Number Theory the weaker (10\%), but the
 two access non-overlapping parts of shared targets.
-
+%
 We distill lessons for improving the general theorem prover: which
 areas to prioritize as analogy sources, which QAP score ranges are
 predictive, which tactic classes transfer reliably, and where the
@@ -139,6 +139,143 @@ yanasse_part4, yanasse_part5, yanasse_part6, yanasse_part7,
 yanasse_part8, yanasse_part9, yanasse_part10}, covering 2~source
 areas (Probability and Number Theory), 8~target areas, 100~schema
 transfer attempts, and 35~new Lean-verified proofs.
+
+%======================================================================
+\section{Related Work}\label{sec:related}
+%======================================================================
+
+The Yanasse project sits at the intersection of several active
+research areas: neural and AI-assisted theorem proving, computational
+analogy, and the large-scale formalization of mathematics.  We
+survey each in turn, positioning the present contribution.
+
+\paragraph{Neural theorem proving.}
+The application of machine learning to formal theorem proving has
+accelerated dramatically since 2020.  Polu and
+Sutskever~\cite{polu2020gptf} showed that a GPT-based language model
+could generate novel proofs accepted into the Metamath library,
+establishing the ``generative tactic prediction'' paradigm.  Han
+et~al.~\cite{han2022pact} extended this with Proof Artifact
+Co-Training (PACT), using self-supervised data from Lean proof terms
+to improve tactic prediction from 32\% to 48\%.
+Bansal et~al.~\cite{bansal2019holist} introduced HOList, a
+reinforcement-learning environment for higher-order logic that
+benchmarked deep proof search at scale.
+Yang et~al.~\cite{yang2024leandojo} built LeanDojo, coupling
+retrieval-augmented premise selection (ReProver) with Lean~4's
+Mathlib to outperform GPT-4 zero-shot.
+Song et~al.~\cite{song2024leancopilot} integrated LLM inference
+natively into Lean as Lean~Copilot, automating 74\% of proof steps
+in interactive use.
+Xin et~al.~\cite{xin2024deepseekprover} fine-tuned DeepSeek-Math on
+8~million synthetic Lean~4 proofs, reaching 52\% on miniF2F.
+Wang et~al.~\cite{wang2024legoprover} introduced LEGO-Prover, which
+grows a reusable lemma library during proving and advanced miniF2F
+from 48\% to 57\%.
+Trinh et~al.~\cite{trinh2024alphageometry} demonstrated
+AlphaGeometry, a neuro-symbolic prover that solved 25 of 30 Olympiad
+geometry problems---matching a human gold medalist---by synthesizing
+millions of training theorems.
+The AlphaProof system~\cite{alphaproof2025nature} combined
+reinforcement learning with Lean~4 to achieve silver-medal
+performance at IMO~2024 and was published in \emph{Nature} in 2025.
+Li et~al.~\cite{li2024survey} provide a comprehensive survey of
+the field.
+
+These systems all learn \emph{within} a single formal library.
+Yanasse differs in two respects: it transfers tactics
+\emph{across} distant areas of the same library, and its matching
+engine is not a neural network but a domain-independent
+relational analogy optimizer (QAP).  The analogy engine sees
+proof-state \emph{shape}, not token sequences, making its
+successes and failures interpretable in terms of mathematical
+structure---particularly the type-class barriers that neural
+provers also encounter but rarely diagnose.
+
+\paragraph{Premise selection and hammers.}
+A complementary line of work focuses on selecting relevant lemmas
+from large libraries.  Kaliszyk and
+Urban~\cite{kaliszyk2014flyspeck} showed that machine-learned
+premise selection could prove 39\% of the Flyspeck library
+automatically, establishing the ``hammer'' paradigm.  Blanchette
+et~al.~\cite{blanchette2016hammering} surveyed hammer methods
+across multiple proof assistants.  Gauthier, Kaliszyk, and
+Urban~\cite{gauthier2021tactictoe} implemented TacticToe, which
+learns from human proofs to guide Monte Carlo tree search at the
+tactic level, proving 66\% of HOL4's standard library.
+Mikula et~al.~\cite{mikula2024magnushammer} replaced
+Sledgehammer's symbolic retrieval with a transformer-based
+contrastive model (Magnushammer), outperforming it on PISA and
+miniF2F.  Yanasse's analogy engine performs a function analogous
+to premise selection---identifying structurally relevant source
+proofs---but matches entire proof states rather than individual
+lemmas, and the retrieved information is a tactic
+\emph{invocation pattern}, not a premise set.
+
+\paragraph{Cross-library alignment and proof transfer.}
+The problem of transferring mathematical knowledge across formal
+systems has received attention in the proof-repair and
+concept-alignment communities.  Gauthier and
+Kaliszyk~\cite{gauthier2019aligning} aligned concepts across six
+proof assistant libraries using disambiguation on structural
+similarity.  Ringer et~al.~\cite{ringer2021proofrepair}
+developed Pumpkin Pi for proof repair across type equivalences in
+Coq, showing that proofs can be systematically transported when the
+underlying types change.  These efforts transfer knowledge across
+\emph{libraries} or \emph{type representations}; Yanasse transfers
+tactic strategies across \emph{mathematical domains} within a single
+library, which to our knowledge has not been attempted at this scale.
+
+\paragraph{Computational analogy.}
+Deep Vision grows out of the Fluid Analogies Research Group
+(FARG) tradition~\cite{hofstadter_fluid_1995, hofstadter_go_1999,
+hofstadter_surfaces_2013}, which models analogy as the perception
+of shared relational structure---not a post-hoc comparison, but the
+core act of cognition.  Gentner's structure-mapping
+theory~\cite{gentner1983structure} formalized one family of
+constraints on analogical mapping; the FARG tradition emphasizes a
+different set of priorities: active perception, context-sensitive
+re-representation, and the inseparability of analogy from concept
+formation.  Mitchell~\cite{mitchell2021analogy} surveyed the gap
+between current AI and human-level abstraction and analogy-making,
+noting that no existing system combines the flexibility of symbolic
+structure mapping with the scalability of neural methods.
+Deep Vision bridges this gap for the proof domain:
+it uses a \emph{quadratic assignment} formulation and runs on GPU
+hardware, enabling the matching of 217{,}133 proof states that the
+Yanasse campaign requires.
+
+The ``strange loop'' structure of the Yanasse project---where the
+analogy engine's failure to prove the paradigm-boundary theorem is
+itself an instance of that boundary---resonates with Hofstadter's
+concept of tangled hierarchies of
+self-reference~\cite{hofstadter_go_1999, hofstadter2007loop}.
+
+\paragraph{Formalization at scale.}
+The feasibility of the Yanasse campaign depends on the maturity of
+large formal libraries.  The Mathlib community~\cite{mathlib2020}
+has built a library of over 189{,}000 theorems in
+Lean~4~\cite{moura2021lean4}, covering a broad range of
+undergraduate and graduate mathematics.  Buzzard, Commelin, and
+Massot~\cite{buzzard2020perfectoid} formalized perfectoid spaces,
+demonstrating that Lean can handle frontier algebraic geometry.
+The Liquid Tensor Experiment~\cite{scholze2022lte} verified
+a theorem in condensed mathematics, one of the target areas in
+our campaign.  Avigad~\cite{avigad2024formalturn} reflects on how
+formalization and AI are jointly reshaping mathematical practice.
+Zheng et~al.~\cite{zheng2022minif2f} introduced the miniF2F
+cross-system benchmark, and Wu
+et~al.~\cite{wu2022autoformalization} showed that LLMs can
+autoformalize competition mathematics.  Jiang
+et~al.~\cite{jiang2023dsp} combined informal reasoning with formal
+proof sketches in the Draft, Sketch, and Prove framework.
+Szegedy~\cite{szegedy2020autoformalization} argued that
+autoformalization is a promising path toward general mathematical
+reasoning.  The scale and diversity of Mathlib is what makes
+cross-area tactic transfer both possible and interesting: without
+$>$200{,}000 formalized proof states spanning 27~areas, the
+structural map of transferability (Section~\ref{sec:map}) could not
+be drawn.
 
 %======================================================================
 \section{Goals of the Experiment}\label{sec:goals}
@@ -793,6 +930,49 @@ fallback (step~7 of the pipeline).  The campaign confirms that this
 is the right placement: they should be tried after domain-independent
 strategies are exhausted, not promoted by analogy matching.
 
+\subsection{Transfer maps from the paradigm boundary}
+
+The metatheoretic results of Section~\ref{sec:metatheory} (Layers
+1--3 and the \texttt{ConstantDependent} classification) are not
+merely retrospective explanations of the campaign's failures.  They
+provide a \emph{formal heuristic} that the prover can use
+prospectively, before attempting any transfer.
+
+By classifying each tactic's type-class prerequisites as either
+\emph{constant-dependent} (requiring an element of the carrier)
+or \emph{constant-free} (requiring only structural operations),
+the prover can construct a \emph{transfer map}: a pre-computed
+table indicating, for each (tactic class, target type) pair,
+whether transfer is logically possible or provably impossible.
+When the target type is empty or lacks the required algebraic
+instances, constant-dependent tactics are pruned before the
+expensive QAP matching and adaptation stages, saving the
+reasoning budget for tactics that can actually succeed.
+
+More concretely, when the prover encounters a new proof state, the
+transfer map answers two questions immediately:
+
+\begin{enumerate}
+\item \textbf{When to stop trying to generalize an algebraic proof.}
+  If the target type has no \texttt{CommSemiring} instance and the
+  best library matches all use \texttt{ring} or \texttt{linarith},
+  the transfer map says: these tactics are provably inapplicable.
+  Do not invest reasoning budget in semantic adaptation.  Fall back
+  to structural tactics or domain-specific lemmas.
+
+\item \textbf{When to extract the structural skeleton.}
+  If an algebraic proof cannot transfer whole, the transfer map
+  identifies which \emph{sub-steps} are structural (and therefore
+  transferable) and which are algebraic (and therefore blocked).
+  The prover can then transfer the structural skeleton---the
+  case splits, extensionality reductions, and congruence steps---while
+  replacing the algebraic sub-steps with target-appropriate tactics.
+  This is precisely the (head, modifier) decomposition of
+  Section~\ref{sec:transfers}: the modifier (structural skeleton)
+  crosses the boundary; the head (algebraic decision procedure)
+  does not.
+\end{enumerate}
+
 %======================================================================
 \section{The Two-Factor Model}\label{sec:model}
 %======================================================================
@@ -1124,10 +1304,583 @@ just for \texttt{ring} vs.\ morphisms, but for algebraic vs.\
 categorical proof theory in general---would be a contribution to
 the foundations of formalized mathematics.
 
-We plan to pursue Layers~1 and~2 as a companion paper to the
-Yanasse series, with the Lean formalization extending the existing
-formal verification system in the project's
-\texttt{Formal\_Verification/} directory.
+\subsection{Layer~1: Formal proof}
+
+We proved Layer~1 in Lean~4 with Mathlib.  The core theorem:
+
+\begin{theorem}[No commutative semiring on empty types]%
+\label{thm:paradigm}
+Let $\alpha$ be a type with no inhabitants.  Then $\alpha$ admits no
+commutative semiring structure.
+\end{theorem}
+
+\begin{proof}
+Every commutative semiring has a zero element.  If $\alpha$ carried
+a commutative semiring structure, it would therefore contain at
+least one element (namely~$0$).  But $\alpha$ is empty.
+Contradiction.
+\end{proof}
+
+\noindent The same argument generalizes to any algebraic type class
+that provides an element: \texttt{Field}, \texttt{LinearOrdered\-CommSemiring},
+\texttt{Ring}, or any class extending \texttt{Zero} or \texttt{One}.
+The paradigm boundary is not specific to \texttt{CommSemiring}---it
+applies to the entire algebraic hierarchy.
+
+\subsection{The proving loop's search}
+
+Before writing the proof by hand, we ran the Deep Vision proving
+loop (\texttt{proving\_loop.py}) on the theorem statement---the same
+relational analogy engine that discovered the paradigm boundary
+empirically.  The system matched the proof state against 45{,}096
+library entries via GPU-accelerated QAP on MPS, then explored a
+proof search tree.  The key steps (abbreviated):
+
+\medskip
+\begin{center}\small
+\begin{tabular}{@{}cp{4.5cm}p{5.5cm}@{}}
+\toprule
+D & Tactic (verbatim from trace) & Effect \\
+\midrule
+0 & \texttt{simp}
+  & Unfolds the goal; progress, 5~entities remain \\[2pt]
+1 & \texttt{intro h\_comm}
+  & Assumes CommSemiring (contradiction setup) \\[2pt]
+2 & \texttt{have := IsEmpty.elim h 0}
+  & Tries to extract a zero element \\[2pt]
+3 & \texttt{have := zero\_ne\_one; exact this this}
+  & Tries the $0 \neq 1$ route \\[2pt]
+4 & \texttt{rw [this] at *}
+  & Cycle detected, backtrack \\[2pt]
+5 & \texttt{haveI : Nontrivial := @CommSemiring.toNontrivial ...}
+  & CommSemiring implies Nontrivial \\[2pt]
+5 & \texttt{haveI : Subsingleton := IsEmpty.subsingleton}
+  & IsEmpty implies Subsingleton \\[2pt]
+& \multicolumn{2}{@{}l}{\emph{Max depth 6 reached; backtracking.}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\noindent The Claude planning module also proposed the correct strategy
+at depth~0: \texttt{intro inst; exact IsEmpty.false\_of\_nonempty h
+$\langle$(0\,:\,$\alpha$)$\rangle$}.  The system found the right
+pieces---\texttt{intro} the instance, extract a zero element, contradict
+\texttt{IsEmpty}---but could not assemble them within the depth limit.
+
+The critical obstacle was that after \texttt{intro inst}, the locally
+introduced \texttt{inst} is not registered as a type-class instance by
+Lean's synthesizer, so \texttt{(0\,:\,$\alpha$)} fails to elaborate.
+The proof requires the explicit annotation
+\texttt{@Zero.zero\,$\alpha$\,inst.toZero} to route through the
+introduced hypothesis.  This is a gap in the proving loop's
+adaptation layer: it can discover the mathematical strategy
+(assume, extract, contradict) but cannot yet perform the
+type-class threading needed to compile it.
+
+\subsection{Verified Lean proof}
+
+The following proof compiles with Lean~4.29.0 and Mathlib~4.29.0
+(exit code~0, zero \texttt{sorry} declarations):
+
+\begin{lstlisting}
+import Mathlib
+
+-- Theorem 1: An empty type cannot carry CommSemiring.
+theorem no_CommSemiring_of_empty
+    ((*$\alpha$*) : Type*) (h : IsEmpty (*$\alpha$*)) :
+    CommSemiring (*$\alpha$*) (*$\to$*) False := by
+  intro inst
+  exact h.false (@Zero.zero (*$\alpha$*) inst.toZero)
+
+-- Theorem 2: Same via (*$\neg$*) Nonempty.
+theorem no_CommSemiring_of_not_nonempty
+    ((*$\alpha$*) : Type*) (h : (*$\neg$*) Nonempty (*$\alpha$*)) :
+    CommSemiring (*$\alpha$*) (*$\to$*) False := by
+  intro inst
+  exact h (*$\langle$*)@Zero.zero (*$\alpha$*) inst.toZero(*$\rangle$*)
+\end{lstlisting}
+
+\noindent The self-referential character of this result deserves
+emphasis: \emph{the same relational analogy engine that discovered
+the paradigm boundary empirically was then asked to prove that the
+boundary is logically necessary}.  It found the right proof strategy
+through structural matching against its library of 217{,}133 proof
+states, but could not compile the final proof term due to a
+type-class threading limitation.  The formal proof was completed by
+hand, using the strategy the engine discovered.
+
+\subsection{Layer~2: The ring proof fragment}
+
+Layer~1 showed that empty types cannot carry \texttt{CommSemiring}.
+Layer~2 goes further: it defines the \emph{equational theory} of
+commutative semirings as an inductive type
+\texttt{RingDerivable}---one constructor per axiom (commutativity,
+associativity, distributivity, identity elements, congruence)---and
+proves two results.
+
+\begin{theorem}[Soundness of the ring fragment]%
+\label{thm:ring_sound}
+Every equality derivable from the commutative semiring axioms is
+true.  That is, if $a =_{\mathrm{ring}} b$ is derivable, then
+$a = b$.
+\end{theorem}
+
+\begin{proof}
+By induction on the derivation.  Each constructor of
+\texttt{RingDerivable} corresponds to a \texttt{CommSemiring} axiom
+($a + b = b + a$, $a \cdot 1 = a$, etc.), and each axiom holds in
+any commutative semiring.  Transitivity, symmetry, and congruence
+preserve equality.
+\end{proof}
+
+\begin{theorem}[The ring fragment requires \texttt{CommSemiring}]%
+\label{thm:ring_requires}
+The type \texttt{RingDerivable} has \texttt{[CommSemiring\,R]} as an
+instance parameter.  Without this instance, the type cannot be
+instantiated: no ring-derivable equality can be \emph{stated}, let
+alone proved.  Combined with Theorem~\ref{thm:paradigm}, this
+yields: over an empty type, the ring proof fragment is vacuous.
+\end{theorem}
+
+\begin{proof}
+In dependent type theory, an instance parameter is a hard
+constraint enforced by the type checker.  Every constructor of
+\texttt{RingDerivable} uses the operations $+$, $\times$, $0$, $1$
+provided by \texttt{CommSemiring}.  Without the instance, these
+operations are undefined and the constructors are ill-typed.
+The type checker rejects any attempt to form a
+\texttt{RingDerivable} term.
+\end{proof}
+
+\noindent The verified Lean formalization defines \texttt{RingDerivable}
+with 17~constructors (reflexivity, symmetry, transitivity, and one
+constructor per \texttt{CommSemiring} axiom plus congruence for $+$
+and~$\times$), proves soundness by induction, and extends the
+impossibility to \texttt{Field}, \texttt{Ring}, and \texttt{Semiring}
+via the common root cause: all extend \texttt{Zero}, which provides
+an element.
+
+\begin{lstlisting}
+-- The equational theory of commutative semirings (excerpt)
+inductive RingDerivable {R : Type*} [CommSemiring R]
+    : R (*$\to$*) R (*$\to$*) Prop where
+  | rd_refl (a : R) : RingDerivable a a
+  | rd_add_comm (a b : R) :
+      RingDerivable (a + b) (b + a)
+  | rd_mul_zero (a : R) :
+      RingDerivable (a * 0) 0
+  | rd_left_distrib (a b c : R) :
+      RingDerivable (a * (b + c)) (a * b + a * c)
+  ...  -- 17 constructors total
+
+-- Soundness
+theorem RingDerivable.sound {R : Type*}
+    [CommSemiring R] {a b : R}
+    (h : RingDerivable a b) : a = b := by
+  induction h with
+  | rd_add_comm a b => exact add_comm a b
+  | rd_mul_zero a => exact mul_zero a
+  ...  -- one case per constructor
+
+-- The root cause: Zero provides an element
+theorem no_Zero_of_empty ((*$\alpha$*) : Type*)
+    (h : IsEmpty (*$\alpha$*)) (inst : Zero (*$\alpha$*)) : False :=
+  h.false (@Zero.zero (*$\alpha$*) inst)
+
+-- Every algebraic class reduces to this:
+theorem no_Ring_of_empty ((*$\alpha$*) : Type*)
+    (h : IsEmpty (*$\alpha$*)) (inst : Ring (*$\alpha$*)) : False :=
+  no_Zero_of_empty (*$\alpha$*) h inst.toZero
+\end{lstlisting}
+
+\subsection{Layer~3: The general paradigm boundary}
+
+The deepest formalization places the algebraic and structural
+fragments side by side and proves they have fundamentally different
+type-class requirements.
+
+\begin{theorem}[The structural fragment is unrestricted]%
+\label{thm:struct_unrestricted}
+Define \texttt{StructDeriv} as the equational theory of pure logic:
+reflexivity, symmetry, transitivity, and congruence under function
+application.  This inductive type has \emph{no type-class parameters}.
+It can be stated and proved over any type, including empty ones.
+In particular, any two functions $f, g : \varnothing \to \beta$
+are structurally equal (vacuously).
+\end{theorem}
+
+\begin{proof}
+\texttt{StructDeriv} is parameterized only by a type
+$\alpha$---no algebraic structure is required.  For functions out
+of the empty type, the function-extensionality constructor
+requires proving $f(x) = g(x)$ for all $x : \varnothing$, which
+holds vacuously (there are no such~$x$).
+\end{proof}
+
+\begin{theorem}[The paradigm boundary is the constant-symbol interface]%
+\label{thm:general_boundary}
+A proof fragment whose signature includes a \emph{constant symbol}
+(a nullary operation producing an element of the carrier---such as
+$0$ or $1$) is incompatible with empty types.  A proof fragment
+whose signature includes only \emph{function symbols} (operations
+taking elements to elements, but not creating them) is compatible
+with empty types.  The algebraic fragment is the former; the
+structural fragment is the latter.  The paradigm boundary is
+the interface between them.
+\end{theorem}
+
+\begin{proof}
+A constant symbol $c$ of type $\alpha$ is an element of $\alpha$.
+If $\alpha$ is empty, no such element exists.  Therefore any type
+class providing a constant symbol (every class extending
+\texttt{Zero} or \texttt{One}) contradicts emptiness.
+
+Conversely, function symbols $f : \alpha^n \to \alpha$ with
+$n \geq 1$ preserve but do not create elements: if $\alpha$ is
+empty, there are no inputs, so no outputs need exist.  The
+structural fragment's operations (function application, abstraction,
+extensionality) are all of this kind.
+\end{proof}
+
+\noindent The verified Lean formalization defines both
+\texttt{RingDeriv} (with \texttt{[CommSemiring\,R]}) and
+\texttt{StructDeriv} (with no type-class parameters), proves
+both sound, demonstrates \texttt{StructDeriv} over \texttt{Empty},
+and shows that the entire algebraic hierarchy (\texttt{CommSemiring},
+\texttt{Field}, \texttt{Ring}, \texttt{Semiring}) reduces to a
+single root cause: \texttt{Zero} provides an element.
+
+\begin{lstlisting}
+-- The structural fragment: NO type-class parameters
+inductive StructDeriv {(*$\alpha$*) : Type*}
+    : (*$\alpha$*) (*$\to$*) (*$\alpha$*) (*$\to$*) Prop where
+  | sd_refl (a : (*$\alpha$*)) : StructDeriv a a
+  | sd_symm : StructDeriv a b (*$\to$*) StructDeriv b a
+  | sd_trans : StructDeriv a b (*$\to$*) StructDeriv b c
+      (*$\to$*) StructDeriv a c
+
+-- Structural fragment WORKS on empty types:
+theorem structural_vacuous ((*$\beta$*) : Type*)
+    (f g : Empty (*$\to$*) (*$\beta$*)) : FunStructDeriv f g :=
+  .fsd_funext fun x => Empty.elim x
+
+-- Algebraic fragment BLOCKED on empty types:
+theorem algebraic_blocked {(*$\alpha$*) : Type*}
+    (hempty : IsEmpty (*$\alpha$*)) [CommSemiring (*$\alpha$*)]
+    {a b : (*$\alpha$*)} (_h : RingDeriv a b) : False :=
+  hempty.false a
+\end{lstlisting}
+
+\subsection{Machine-checkable boundary classification}
+
+The three layers above prove the paradigm boundary for specific
+type classes one at a time.  We unify them into a single
+type-class hierarchy that makes the boundary \emph{machine-checkable}:
+registering any new algebraic class automatically yields the
+impossibility theorem.
+
+\begin{definition}[\texttt{ConstantDependent}]%
+\label{def:constant_dependent}
+A type class $C$ is \emph{constant-dependent} if every instance of
+$C$ on a type $\alpha$ provides at least one element of $\alpha$
+(a constant symbol in the algebraic signature).  Formally, there
+exists a function $\mathrm{witness} : C(\alpha) \to \alpha$.
+\end{definition}
+
+\begin{theorem}[General paradigm boundary]%
+\label{thm:machine_boundary}
+Let $C$ be a constant-dependent type class.  If $\alpha$ is empty,
+then no instance of $C$ on $\alpha$ can exist.
+\end{theorem}
+
+\begin{proof}
+Let $i$ be a hypothetical instance of $C$ on $\alpha$.
+Since $C$ is constant-dependent, $\mathrm{witness}(i)$ is an
+element of $\alpha$.  But $\alpha$ is empty.  Contradiction.
+\end{proof}
+
+\noindent The algebraic hierarchy---\texttt{Zero}, \texttt{One},
+\texttt{CommSemiring}, \texttt{Semiring}, \texttt{Ring},
+\texttt{Field}, and even \texttt{Inhabited}---is registered as
+constant-dependent by providing the witness function (typically
+extracting $0$ via \texttt{inst.toZero}).  Each registration is a
+one-line instance declaration; the impossibility theorem follows
+automatically.
+
+To check whether a tactic can cross the paradigm boundary, check
+whether its required type class has a \texttt{ConstantDependent}
+instance.  If yes, the tactic is locked to inhabited types.  If
+no, it is free to cross.
+
+\begin{lstlisting}
+-- The boundary classification class
+class ConstantDependent
+    (C : Type u (*$\to$*) Type v) where
+  witness : {(*$\alpha$*) : Type u} (*$\to$*) C (*$\alpha$*) (*$\to$*) (*$\alpha$*)
+
+-- Register the algebraic hierarchy:
+instance : ConstantDependent Zero where
+  witness inst := @Zero.zero _ inst
+instance : ConstantDependent CommSemiring where
+  witness inst := @Zero.zero _ inst.toZero
+instance : ConstantDependent Field where
+  witness inst := @Zero.zero _ inst.toZero
+instance : ConstantDependent Inhabited where
+  witness inst := @Inhabited.default _ inst
+
+-- ONE theorem covers them all:
+theorem constant_dependent_blocks_empty
+    {C : Type u (*$\to$*) Type v}
+    [ConstantDependent C]
+    {(*$\alpha$*) : Type u}
+    (hempty : IsEmpty (*$\alpha$*))
+    (inst : C (*$\alpha$*)) : False :=
+  hempty.false (ConstantDependent.witness inst)
+
+-- Every impossibility is now a one-liner:
+example ((*$\alpha$*) : Type*) (h : IsEmpty (*$\alpha$*))
+    (i : Ring (*$\alpha$*)) : False :=
+  constant_dependent_blocks_empty h i
+\end{lstlisting}
+
+\noindent All formalizations---three layers plus the
+\texttt{ConstantDependent} hierarchy---compile with Lean~4.29.0
+and Mathlib~4.29.0, with zero \texttt{sorry} declarations.
+The paradigm boundary discovered empirically in Parts~1--10 is
+now a formal, machine-checkable theorem.
+
+\subsection{Connections to foundational ideas}
+
+The paradigm boundary is not an isolated observation about Lean
+tactics.  It connects to several foundational ideas in logic,
+type theory, and category theory.
+
+\paragraph{Curry--Howard and the boundary as a type-theoretic
+phenomenon.}
+Under the Curry--Howard
+correspondence~\cite{howard1980, curry1958},
+proofs are programs and propositions are types.  The paradigm
+boundary is, at bottom, a statement about which types can serve as
+domains for which programs.  The \texttt{ring} tactic constructs a
+\emph{program} (a proof term) that manipulates $0$, $1$, $+$,
+$\times$ via the \texttt{CommSemiring} axioms.  This program has
+type $a = b$ where $a, b : R$ and $R$ carries \texttt{CommSemiring}.
+The Curry--Howard reading is: the \emph{proposition} ``$a = b$ in a
+commutative semiring'' can only be \emph{inhabited} (proved) when the
+type $R$ itself is inhabited---because the proof term must manipulate
+elements of~$R$.  The structural fragment, by contrast, constructs
+proof terms that never mention elements of the carrier: \texttt{funext}
+quantifies over elements but does not produce them; \texttt{congr}
+decomposes equality but does not evaluate subterms.  These proof
+terms inhabit their proposition types regardless of whether the
+carrier is inhabited.  The paradigm boundary is thus a
+\emph{habitation boundary} in the Curry--Howard sense: it separates
+propositions whose proofs require witness terms from propositions
+whose proofs are purely structural.
+
+\paragraph{Type-class hierarchies across proof assistants.}
+The boundary's formal mechanism---\texttt{Zero} providing a
+constant symbol that forces nonemptiness---is specific to how
+Mathlib organizes its algebraic hierarchy.  In Lean~4's Mathlib,
+\texttt{CommSemiring} extends \texttt{Zero} and \texttt{One}
+as explicit type-class components, and the \texttt{ring} tactic's
+elaborator synthesizes these instances at invocation
+time~\cite{mathlib2020, moura2021}.  In
+Coq's Mathematical Components library~\cite{mahboubi2013},
+the analogous hierarchy uses \emph{packed classes}:
+\texttt{GRing.Ring} bundles a zero, a one, and all axioms into a
+single structure.  The effect is the same---you cannot form
+\texttt{GRing.Ring} over an empty type---but the mechanism differs:
+Coq's canonical structures resolve at unification time rather than
+via instance search.  In both systems, the paradigm boundary
+holds: algebraic decision procedures require an inhabited carrier.
+The boundary is not an artifact of Lean's design but a consequence
+of the algebraic signature itself: any proof assistant that
+formalizes ring theory must, by the axioms, produce a zero element,
+and any empty type contradicts this.
+
+\paragraph{Category theory: natural transformations vs.\ internal
+algebra.}
+The two proof fragments correspond to two levels of categorical
+abstraction.  The \emph{structural fragment} operates at the level
+of \emph{natural transformations}: functoriality, extensionality,
+and composition.  These are \emph{element-free} notions---a natural
+transformation $\eta : F \Rightarrow G$ is defined by its components
+$\eta_X : F(X) \to G(X)$ for each object~$X$, but the definition
+does not require any particular object to exist.  Natural
+transformations between functors on the empty category are trivially
+well-defined (there are no components to specify).  This is why
+the structural fragment works on empty types: it lives in the
+\emph{external} categorical world where objects may or may not have
+elements.
+
+The \emph{algebraic fragment} operates at the level of
+\emph{internal algebraic structures}: commutative semirings, fields,
+ordered rings.  These are defined by operations on \emph{elements}
+of a carrier---elements that must exist for the operations to be
+meaningful.  In categorical terms, an internal ring in a category
+$\mathcal{C}$ is an object $R$ equipped with morphisms
+$0 : \mathbf{1} \to R$, $+ : R \times R \to R$, etc., where
+$\mathbf{1}$ is the terminal object.  The morphism
+$0 : \mathbf{1} \to R$ is a \emph{global element}---it picks out a
+specific point of~$R$.  If $R$ is empty (initial rather than
+terminal), no such morphism exists.
+
+The paradigm boundary is therefore the boundary between
+\emph{external categorical reasoning} (natural transformations,
+functoriality, universality) and \emph{internal algebraic reasoning}
+(elements, operations, equations).  This distinction is well-known
+in category theory~\cite{maclane1971, borceux1994}; what the Yanasse
+campaign adds is the empirical observation that it manifests as a
+\emph{tactic transfer barrier} in formalized mathematics, and the
+formal proof that this barrier is logically necessary.
+
+\paragraph{On the apparent triviality of the result.}
+A skeptic might object: ``We already know rings are not empty.''
+Indeed---but knowing it is intuition.  Formalizing \emph{the exact
+moment the logic breaks}---the point where a constant symbol in an
+algebraic signature forces the carrier to be nonempty, and the
+precise type-class chain through which this constraint propagates
+to the tactic elaborator---allows us to build better automated
+search tools.  The intuition that ``\texttt{ring} won't work here''
+is correct but unhelpful: it does not tell the prover \emph{when}
+to stop trying, \emph{what} to extract from the failed attempt, or
+\emph{where} to look instead.  The formal boundary does all three.
+We have, in effect, measured the friction coefficient of mathematics
+itself: the quantitative resistance that the type-class landscape
+offers to tactic transfer across area boundaries.
+
+\subsection{Structural density: a metric for proof reusability}
+
+The paradigm boundary suggests a new metric for the formal
+verification community.
+
+\begin{definition}[Structural density]%
+\label{def:structural_density}
+The \emph{structural density} of a proof is the fraction of its
+tactic steps that belong to the constant-free (structural)
+fragment---steps that use no algebraic constants and require no
+type-class instances providing elements.  Formally, if a proof
+consists of $n$~tactic steps, of which $s$~are structural
+(extensionality, congruence, case splits, function application)
+and $a = n - s$ are algebraic (ring normalization, linear
+arithmetic, field simplification, numerical evaluation), then
+\[
+  \rho \;=\; \frac{s}{n}
+\]
+is the structural density, with $\rho \in [0, 1]$.
+\end{definition}
+
+\noindent The Yanasse campaign provides empirical calibration:
+structural tactics transfer at ${\sim}$60\% across area boundaries;
+algebraic tactics at ${\sim}$10\%.  A proof's structural density
+therefore predicts its \emph{transferability}---the probability
+that the proof technique can be reused in a distant area of
+mathematics.
+
+\paragraph{High structural density ($\rho \to 1$).}
+A proof composed almost entirely of extensionality reductions,
+case splits, and congruence steps is \emph{reusable}: its technique
+can transfer to any target area because it makes no assumptions
+about the algebraic structure of the types involved.  Such proofs
+are valuable in a library precisely because they are
+portable---they work wherever the logical structure matches,
+regardless of the algebraic context.
+
+\paragraph{Low structural density ($\rho \to 0$).}
+A proof composed almost entirely of \texttt{ring}, \texttt{linarith},
+and \texttt{norm\_num} is \emph{brittle}: it works only in the
+specific algebraic neighborhood where the required type-class
+instances exist.  Such proofs are efficient within their home area
+but contribute nothing to cross-area technique transfer.  They are
+the mathematical equivalent of highly optimized but non-portable
+code.
+
+\paragraph{Implications for library design.}
+If a theorem admits two proofs---one with $\rho = 0.8$ and one with
+$\rho = 0.3$---the higher-density proof is strictly more valuable
+to the library as a \emph{source of transferable techniques}, even
+if the lower-density proof is shorter or more ``elegant'' by
+traditional metrics.  Structural density could therefore serve as
+a secondary quality criterion for proof libraries: among correct
+proofs of the same theorem, prefer the one with higher $\rho$,
+because it maximizes the theorem's utility as an analogy source.
+
+\paragraph{Computed values across Mathlib.}
+We classified each of Mathlib's 209{,}519~tactic invocations as
+structural ($\rho$-contribution~$= 1$), algebraic ($= 0$), or
+mixed ($= 0.1$--$0.9$), using the empirical transfer rates from
+the campaign as the classification guide.
+Table~\ref{tab:structural_density} shows $\rho$ for all
+27~areas.  The Mathlib-wide average is
+$\bar{\rho} = 0.790$: about 79\% of all tactic steps in
+Mathlib are structural.
+
+\begin{table}[ht]
+\centering\small
+\caption{Structural density $\rho$ by Mathlib area, computed over
+  209{,}519 tactic invocations.  Higher $\rho$ = more structural
+  (reusable); lower $\rho$ = more algebraic (brittle).}
+\label{tab:structural_density}
+\begin{tabular}{@{}lrc@{\quad}lrc@{}}
+\toprule
+Area & Tactics & $\rho$ & Area & Tactics & $\rho$ \\
+\midrule
+FieldTheory     &  2{,}773 & .840 &
+  Topology       & 13{,}304 & .792 \\
+Control         &    246 & .838 &
+  AlgGeometry    &  5{,}456 & .789 \\
+SetTheory       &  2{,}071 & .835 &
+  Combinatorics  &  7{,}474 & .789 \\
+Dynamics        &    493 & .824 &
+  AlgTopology    &  2{,}288 & .782 \\
+GroupTheory     &  5{,}643 & .819 &
+  MeasureTheory  & 17{,}489 & .781 \\
+Logic           &    656 & .817 &
+  Computability  &  2{,}344 & .769 \\
+ModelTheory     &  1{,}079 & .816 &
+  Tactic         &    362 & .762 \\
+Condensed       &    187 & .816 &
+  Analysis       & 30{,}328 & .756 \\
+Algebra         & 27{,}721 & .814 &
+  InfoTheory     &    240 & .752 \\
+Order           &  4{,}817 & .810 &
+  Probability    &  6{,}183 & .752 \\
+RepTheory       &    669 & .807 &
+  NumberTheory   &  8{,}577 & .742 \\
+RingTheory      & 20{,}334 & .805 &
+  & & \\
+LinearAlgebra   & 11{,}300 & .805 &
+  \textbf{Mathlib-wide} & \textbf{209{,}519} & \textbf{.790} \\
+Data            & 12{,}652 & .796 &
+  & & \\
+Geometry        &  6{,}732 & .795 &
+  CatTheory      & 18{,}101 & .794 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{What $\rho$ does and does not predict.}
+Structural density does \emph{not} directly predict transfer
+success rate.  Probability ($\rho = 0.752$) and Number Theory
+($\rho = 0.742$) have nearly identical structural densities but
+4.6$\times$ different transfer rates (46\% vs.\ 10\%).  This is
+because $\rho$ measures a proof's \emph{style}---the mix of
+structural and algebraic steps---not its \emph{transferability},
+which depends on the two-factor model of
+Section~\ref{sec:model} (source tactic profile $\times$ target
+type-class landscape).
+
+What $\rho$ \emph{does} predict is \emph{reusability}: a high-$\rho$
+proof contains more structural skeleton that can survive transfer.
+Field Theory ($\rho = 0.840$) and Set Theory ($\rho = 0.835$)
+have the most portable proofs; Number Theory ($\rho = 0.742$)
+and Probability ($\rho = 0.752$) have the least.  The
+$\rho$~values, together with the transfer potential matrices of
+Section~\ref{sec:map}, form a complete \emph{reusability map} of
+Mathlib: the matrices say where to look for analogues; $\rho$
+says how much of what you find will survive the transfer.
 
 %======================================================================
 \section{Conclusion}\label{sec:conclusion}
@@ -1245,6 +1998,66 @@ continued Number Theory analysis),
 9~target areas, and 200~schema transfer attempts---doubling the
 empirical base for the structural map of Mathlib transferability.
 
+\subsection*{A strange loop}
+
+The Yanasse project, viewed whole, forms what
+Hofstadter~\cite{hofstadter_go_1999, hofstadter2007loop,
+hofstadter_surfaces_2013}
+calls a \emph{strange loop}: a system that moves through levels of
+abstraction and arrives back at itself.
+
+Deep Vision was built to understand chess---to see that a pawn
+defended by its king and attacked by a knight plays ``the same
+role'' as a rook defended by its queen and attacked by a bishop.
+The same relational matching engine, with only the relation
+extractor swapped, was applied to Lean~4 proof states: hypotheses,
+goals, and types replaced pieces; rewrite, apply, and head-match
+replaced attack, defense, and blocking.  This engine, running at
+scale across 217{,}133 proof states (the Yanasse campaign),
+discovered empirically that certain tactic transfers are
+impossible---20~attempts against Condensed Mathematics and
+Representation Theory, 0~successes, every failure tracing to a
+missing type-class instance.  We called this the paradigm boundary.
+
+We then formalized the paradigm boundary as a Lean theorem and fed
+it back to the proving loop---the same relational analogy engine.
+The engine matched the theorem's proof state against its library,
+found structurally similar proofs in measure theory, combinatorics,
+and analysis (completely unrelated mathematics), and extracted the
+right strategy: assume the algebraic instance, extract a zero
+element, contradict emptiness.  The analogy is absurd at the
+content level---what does a graph-coloring argument have to do
+with the non-existence of commutative semirings on empty
+types?---but structurally valid: both involve deriving a
+contradiction from an existence assumption.  The system perceived
+the shared essence across superficially different situations, which
+is Hofstadter's definition of analogy.
+
+But the engine could not compile the final proof.  The obstacle was
+type-class threading: after introducing the hypothetical
+\texttt{CommSemiring} instance, Lean's synthesizer did not
+recognize it as available for resolving \texttt{(0\,:\,$\alpha$)}.
+The proof required an explicit annotation---\texttt{@Zero.zero}\,$\alpha$\,\texttt{inst.toZero}---to
+route through the locally introduced hypothesis.
+
+This failure is the strange loop.  The system's limitation in
+\emph{proving} the paradigm boundary theorem is an instance of the
+paradigm boundary \emph{itself}: the proving loop's adaptation
+layer could not thread a type-class instance across a local
+context boundary, which is precisely the kind of type-class
+incompatibility that the theorem formalizes.  The proof of the
+boundary ran into the boundary.
+
+The full loop: chess $\to$ proof states $\to$ tactic transfer $\to$
+paradigm boundary $\to$ formal theorem $\to$ feed back to the
+matcher $\to$ the matcher's failure illuminates why the boundary
+exists.  Each level of abstraction leads to the next, and the last
+level reflects back on the first.  The domain-independent matching
+engine that sees ``this pawn plays the same role as that rook''
+also sees ``this impossibility theorem has the same shape as that
+measure-zero argument''---and its inability to close the proof is
+itself a data point about the structure of mathematical knowledge.
+
 \section*{Acknowledgments}
 
 Named after Horacio Hideki Yanasse.  The Deep Vision matching engine
@@ -1257,6 +2070,50 @@ on the MPS backend.
 %======================================================================
 \begin{thebibliography}{99}
 %======================================================================
+
+\bibitem{howard1980}
+W.~A.~Howard,
+``The formulae-as-types notion of construction,''
+in \emph{To H.~B.~Curry: Essays on Combinatory Logic, Lambda
+Calculus and Formalism} (J.~P.~Seldin and J.~R.~Hindley, eds.),
+pp.~479--490, Academic Press, 1980.
+
+\bibitem{curry1958}
+H.~B.~Curry, R.~Feys, and W.~Craig,
+\emph{Combinatory Logic}, vol.~1.
+Amsterdam: North-Holland, 1958.
+
+\bibitem{mathlib2020}
+The Mathlib Community,
+``The Lean mathematical library,''
+in \emph{Proceedings of the 9th ACM SIGPLAN International Conference
+on Certified Programs and Proofs (CPP 2020)}, pp.~367--381, 2020.
+
+\bibitem{moura2021}
+L.~de~Moura, S.~Kong, J.~Avigad, F.~van~Doorn, and M.~von~Raumer,
+``The Lean theorem prover (system description),''
+in \emph{Automated Deduction --- CADE-25}
+(A.~P.~Felty and A.~Middeldorp, eds.),
+Lecture Notes in Computer Science, vol.~9195, pp.~378--388,
+Springer, 2015.
+
+\bibitem{mahboubi2013}
+A.~Mahboubi and E.~Tassi,
+``Canonical structures for the working Coq user,''
+in \emph{Interactive Theorem Proving (ITP 2013)}
+(S.~Blazy, C.~Paulin-Mohring, and D.~Pichardie, eds.),
+Lecture Notes in Computer Science, vol.~7998, pp.~19--34,
+Springer, 2013.
+
+\bibitem{maclane1971}
+S.~Mac~Lane,
+\emph{Categories for the Working Mathematician}.
+New York: Springer-Verlag, 1971.
+
+\bibitem{borceux1994}
+F.~Borceux,
+\emph{Handbook of Categorical Algebra}, 3~vols.
+Cambridge: Cambridge University Press, 1994.
 
 \bibitem{yanasse_part1}
 A.~Linhares,
@@ -1385,6 +2242,193 @@ ARGO LABS Report for Distribution, 2026.
 A.~Linhares,
 ``A sketch of Deep Vision's study of mathematics,''
 ARGO LABS Report for Distribution, 2026.
+
+% === New references (post-2010, from target journals/arXiv) ===
+
+\bibitem{hofstadter2007loop}
+D.~R.~Hofstadter,
+\emph{I Am a Strange Loop}.
+New York: Basic Books, 2007.
+
+\bibitem{polu2020gptf}
+S.~Polu and I.~Sutskever,
+``Generative language modeling for automated theorem proving,''
+arXiv preprint 2009.03393, 2020.
+
+\bibitem{han2022pact}
+J.~M.~Han, J.~Rute, Y.~Wu, E.~W.~Ayers, and S.~Polu,
+``Proof artifact co-training for theorem proving with language
+models,''
+in \emph{Proceedings of the International Conference on Learning
+Representations (ICLR)}, 2022.
+
+\bibitem{bansal2019holist}
+K.~Bansal, S.~Loos, M.~Rabe, C.~Szegedy, and S.~Wilcox,
+``HOList: An environment for machine learning of higher-order
+theorem proving,''
+in \emph{Proceedings of the 36th International Conference on Machine
+Learning (ICML)}, vol.~97, pp.~454--463, PMLR, 2019.
+
+\bibitem{yang2024leandojo}
+K.~Yang, A.~M.~Swope, A.~Gu, R.~Chalamala, P.~Song, S.~Yu,
+S.~Godil, R.~Prenger, and A.~Anandkumar,
+``LeanDojo: Theorem proving with retrieval-augmented language
+models,''
+in \emph{Advances in Neural Information Processing Systems~36
+(NeurIPS)}, 2023.
+
+\bibitem{song2024leancopilot}
+P.~Song, K.~Yang, and A.~Anandkumar,
+``Lean Copilot: Large language models as copilots for theorem
+proving in Lean,''
+in \emph{Proceedings of Machine Learning Research}, vol.~288,
+pp.~1--26, 2025.
+
+\bibitem{xin2024deepseekprover}
+H.~Xin, D.~Guo, Z.~Shao, Z.~Ren, Q.~Zhu, B.~Liu, C.~Ruan,
+W.~Li, and X.~Liang,
+``DeepSeek-Prover: Advancing theorem proving in LLMs through
+large-scale synthetic data,''
+arXiv preprint 2405.14333, 2024.
+
+\bibitem{wang2024legoprover}
+H.~Wang, H.~Xin, C.~Zheng, L.~Li, Z.~Liu, Q.~Cao, Y.~Huang,
+J.~Xiong, H.~Shi, E.~Xie, J.~Yin, Z.~Li, and H.~Liang,
+``LEGO-Prover: Neural theorem proving with growing libraries,''
+in \emph{Proceedings of the International Conference on Learning
+Representations (ICLR)}, 2024.
+
+\bibitem{trinh2024alphageometry}
+T.~H.~Trinh, Y.~Wu, Q.~V.~Le, H.~He, and T.~Luong,
+``Solving olympiad geometry without human demonstrations,''
+\emph{Nature}, vol.~625, pp.~476--482, 2024.
+
+\bibitem{alphaproof2025nature}
+AlphaProof Team (Google DeepMind),
+``Olympiad-level formal mathematical reasoning with reinforcement
+learning,''
+\emph{Nature}, 2025.
+
+\bibitem{li2024survey}
+Z.~Li, J.~Sun, L.~Murphy, Q.~Su, Z.~Li, X.~Zhang, K.~Yang,
+and X.~Si,
+``A survey on deep learning for theorem proving,''
+in \emph{Proceedings of the Conference on Language Modeling
+(COLM)}, 2024.
+
+\bibitem{kaliszyk2014flyspeck}
+C.~Kaliszyk and J.~Urban,
+``Learning-assisted automated reasoning with Flyspeck,''
+\emph{Journal of Automated Reasoning}, vol.~53, pp.~173--213,
+2014.
+
+\bibitem{blanchette2016hammering}
+J.~C.~Blanchette, C.~Kaliszyk, L.~C.~Paulson, and J.~Urban,
+``Hammering towards QED,''
+\emph{Journal of Formalized Reasoning}, vol.~9, no.~1,
+pp.~101--148, 2016.
+
+\bibitem{gauthier2021tactictoe}
+T.~Gauthier, C.~Kaliszyk, J.~Urban, R.~Kumar, and M.~Norrish,
+``TacticToe: Learning to prove with tactics,''
+\emph{Journal of Automated Reasoning}, vol.~65, pp.~257--286,
+2021.
+
+\bibitem{mikula2024magnushammer}
+M.~Mikula, S.~Tworkowski, S.~Antoniak, B.~Piotrowski,
+A.~Q.~Jiang, J.~P.~Zhou, C.~Szegedy, {\L}.~Kuci\'nski,
+P.~Mi{\l}o{\'s}, and Y.~Wu,
+``Magnushammer: A transformer-based approach to premise selection,''
+in \emph{Proceedings of the International Conference on Learning
+Representations (ICLR)}, 2024.
+
+\bibitem{gauthier2019aligning}
+T.~Gauthier and C.~Kaliszyk,
+``Aligning concepts across proof assistant libraries,''
+\emph{Journal of Symbolic Computation}, vol.~90, pp.~89--123,
+2019.
+
+\bibitem{ringer2021proofrepair}
+T.~Ringer, R.~Porter, N.~Yazdani, J.~Leo, and D.~Grossman,
+``Proof repair across type equivalences,''
+in \emph{Proceedings of the 42nd ACM SIGPLAN International
+Conference on Programming Language Design and Implementation
+(PLDI)}, pp.~112--128, 2021.
+
+\bibitem{gentner1983structure}
+D.~Gentner,
+``Structure-mapping: A theoretical framework for analogy,''
+\emph{Cognitive Science}, vol.~7, no.~2, pp.~155--170, 1983.
+
+\bibitem{mitchell2021analogy}
+M.~Mitchell,
+``Abstraction and analogy-making in artificial intelligence,''
+\emph{Annals of the New York Academy of Sciences}, vol.~1505,
+pp.~79--101, 2021.
+
+\bibitem{moura2021lean4}
+L.~de~Moura and S.~Ullrich,
+``The Lean~4 theorem prover and programming language,''
+in \emph{Automated Deduction---CADE~28}
+(A.~Platzer and G.~Sutcliffe, eds.),
+Lecture Notes in Computer Science, vol.~12699, pp.~625--635,
+Springer, 2021.
+
+\bibitem{buzzard2020perfectoid}
+K.~Buzzard, J.~Commelin, and P.~Massot,
+``Formalising perfectoid spaces,''
+in \emph{Proceedings of the 9th ACM SIGPLAN International
+Conference on Certified Programs and Proofs (CPP)},
+pp.~299--312, 2020.
+
+\bibitem{scholze2022lte}
+P.~Scholze and the Lean Community,
+``Completion of the Liquid Tensor Experiment,''
+Lean Community Blog, 2022.
+% \url{https://leanprover-community.github.io/blog/posts/lte-final/}
+
+\bibitem{avigad2024formalturn}
+J.~Avigad,
+``Mathematics and the formal turn,''
+\emph{Bulletin of the American Mathematical Society}, vol.~61,
+no.~2, pp.~225--240, 2024.
+
+\bibitem{zheng2022minif2f}
+K.~Zheng, J.~M.~Han, and S.~Polu,
+``MiniF2F: A cross-system benchmark for formal Olympiad-level
+mathematics,''
+in \emph{Proceedings of the International Conference on Learning
+Representations (ICLR)}, 2022.
+
+\bibitem{wu2022autoformalization}
+Y.~Wu, A.~Q.~Jiang, W.~Li, M.~Rabe, C.~Staats, M.~Jamnik,
+and C.~Szegedy,
+``Autoformalization with large language models,''
+in \emph{Advances in Neural Information Processing Systems~35
+(NeurIPS)}, 2022.
+
+\bibitem{jiang2023dsp}
+A.~Q.~Jiang, S.~Welleck, J.~P.~Zhou, W.~Li, J.~Liu,
+M.~Jamnik, T.~Lacroix, Y.~Wu, and G.~Lample,
+``Draft, sketch, and prove: Guiding formal theorem provers with
+informal proofs,''
+in \emph{Proceedings of the International Conference on Learning
+Representations (ICLR)}, 2023.
+
+\bibitem{szegedy2020autoformalization}
+C.~Szegedy,
+``A promising path towards autoformalization and general artificial
+intelligence,''
+in \emph{Intelligent Computer Mathematics (CICM 2020)}
+(C.~Benzm\"uller and B.~Miller, eds.),
+Lecture Notes in Computer Science, vol.~12236, pp.~3--20,
+Springer, 2020.
+
+\bibitem{babai2016quasipoly}
+L.~Babai,
+``Graph isomorphism in quasipolynomial time,''
+in \emph{Proceedings of the 48th Annual ACM Symposium on Theory
+of Computing (STOC)}, pp.~684--697, 2016.
 
 \end{thebibliography}
 
